@@ -47,7 +47,6 @@ class ArrayMapHelper
 	}
 	
 	/**
-	 * Creates object of self and calls 'getAssocValueByMappingRecursion'.
 	 * Returns a key's value by mapping it to a key-value pair from the same level in multidimensional array.
 	 * If no matches returns $defaultValue.
 	 * 
@@ -98,8 +97,7 @@ class ArrayMapHelper
 	}
 	
 	/**
-	 * Creates object of self and calls 'getAssocValueByMultiMappingRecursion'.
-	 * Returns array of searched keys values by mapping them to key-value pairs from the same level in multidimensional array.
+	 * Returns array of searched keys' values by mapping them to key-value pairs from the same level in multidimensional array.
 	 * If no matches returns $defaultValue.
 	 *
 	 * @author nikola.tsenov
