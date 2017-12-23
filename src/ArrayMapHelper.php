@@ -12,7 +12,7 @@ class ArrayMapHelper
 	public $default;
 	
 	//searched value
-	private $searchedValue = null;
+	private $result = null;
 	
 	public function __construct($array, $defaultValue = false)
 	{
@@ -25,29 +25,31 @@ class ArrayMapHelper
 	}
 	
 	/**
-	 * Gets private $searchedValue
+	 * Gets private $result
 	 * 
 	 * @author nikola.tsenov
 	 * 
 	 * @return unknown
 	 */
-	public function getSearchedValue()
+	public function getResult()
 	{
-		return $this->searchedValue;
+		return $this->result;
 	}
 	
 	/**
-	 * Sets private $searchedValue
+	 * Sets private $result
 	 * 
 	 * @author nikola.tsenov
 	 */
-	public function setSearchedValue($value)
+	public function setResult($value)
 	{
-		$this->searchedValue = $value;
+		$this->result = $value;
 	}
 	
 	/**
-	 * Creates object of self and returns 'getAssocValueByMappingRecursion'.
+	 * Creates object of self and calls 'getAssocValueByMappingRecursion'.
+	 * Returns a key's value by mapping it to a key-value pair from the same level in multidimensional array.
+	 * If no matches returns $defaultValue.
 	 * 
 	 * @author nikola.tsenov
 	 * 
@@ -80,11 +82,11 @@ class ArrayMapHelper
 	protected static function getAssocValueByMappingRecursion(ArrayMapHelper $arrayMapHelper, $haystack, $mapKey, $mapValue, $searchedKey)
 	{
 		if (isset($haystack[$mapKey]) && $haystack[$mapKey] == $mapValue && array_key_exists($searchedKey, $haystack)) {
-			$arrayMapHelper->setSearchedValue($haystack[$searchedKey]);
+			$arrayMapHelper->setResult($haystack[$searchedKey]);
 		}
 	
 		foreach ($haystack AS $key => $value) {
-			if (! is_null($arrayMapHelper->getSearchedValue())) {
+			if (! is_null($arrayMapHelper->getResult())) {
 				break;
 			}
 			if (is_array($value)) {
@@ -92,11 +94,13 @@ class ArrayMapHelper
 			}
 		}
 	
-		return $arrayMapHelper->getSearchedValue() ?? $arrayMapHelper->default;
+		return $arrayMapHelper->getResult() ?? $arrayMapHelper->default;
 	}
 	
 	/**
-	 * Creates object of self and returns 'getAssocValueByMultiMappingRecursion'.
+	 * Creates object of self and calls 'getAssocValueByMultiMappingRecursion'.
+	 * Returns array of searched keys values by mapping them to key-value pairs from the same level in multidimensional array.
+	 * If no matches returns $defaultValue.
 	 *
 	 * @author nikola.tsenov
 	 *
@@ -149,12 +153,12 @@ class ArrayMapHelper
 				}
 			}
 			if (! empty($foundArray)) {
-				$arrayMapHelper->setSearchedValue($foundArray);
+				$arrayMapHelper->setResult($foundArray);
 			}
 		}
 	
 		foreach ($haystack AS $key => $value) {
-			if (! is_null($arrayMapHelper->getSearchedValue())) {
+			if (! is_null($arrayMapHelper->getResult())) {
 				break;
 			}
 			if (is_array($value)) {
@@ -162,6 +166,6 @@ class ArrayMapHelper
 			}
 		}
 	
-		return $arrayMapHelper->getSearchedValue() ?? $arrayMapHelper->default;
+		return $arrayMapHelper->getResult() ?? $arrayMapHelper->default;
 	}
 }
