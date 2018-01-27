@@ -3,50 +3,8 @@ namespace Lib\ArrayGetAndMap;
 
 use Lib\ArrayMap\Exception\ArrayMapException;
 
-class ArrayMapGetter extends ArrayInput
+class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInterface
 {
-	//default return value
-	public $default;
-	
-	//searched value
-	private $result = null;
-	
-	/**
-	 * @author nikola.tsenov
-	 * 
-	 * @param array $array
-	 * @param unknown $defaultValue
-	 * @throws ArrayMapException
-	 */
-	public function __construct($array, $defaultValue = false)
-	{
-		parent::__construct($array);
-		
-		$this->default = $defaultValue;
-	}
-	
-	/**
-	 * Gets private $result
-	 * 
-	 * @author nikola.tsenov
-	 * 
-	 * @return unknown
-	 */
-	public function getResult()
-	{
-		return $this->result;
-	}
-	
-	/**
-	 * Sets private $result
-	 * 
-	 * @author nikola.tsenov
-	 */
-	public function setResult($value)
-	{
-		$this->result = $value;
-	}
-	
 	/**
 	 * Returns a key's value by mapping it to a key-value pair from the same level in multidimensional array.
 	 * If no matches returns $defaultValue.
@@ -64,7 +22,7 @@ class ArrayMapGetter extends ArrayInput
 	{
 		$arrayMapGetter = new static($haystack, $defaultValue);
 		
-		return self::getAssocValueByMappingRecursion($arrayMapGetter, $arrayMapGetter->array, $mapKey, $mapValue, $searchedKey);
+		return self::getAssocValueByMappingRecursion($arrayMapGetter, $arrayMapGetter->inputArray, $mapKey, $mapValue, $searchedKey);
 	}
 	
 	/**
@@ -79,7 +37,7 @@ class ArrayMapGetter extends ArrayInput
 	 * @param int|string $searchedKey
 	 * @return unknown
 	 */
-	protected static function getAssocValueByMappingRecursion(ArrayMapGetter $arrayMapGetter, $haystack, $mapKey, $mapValue, $searchedKey)
+	protected static function getAssocValueByMappingRecursion(ArrayOperatorInterface $arrayMapGetter, $haystack, $mapKey, $mapValue, $searchedKey)
 	{
 		if (isset($haystack[$mapKey]) && $haystack[$mapKey] == $mapValue && array_key_exists($searchedKey, $haystack)) {
 			$arrayMapGetter->setResult($haystack[$searchedKey]);
@@ -114,7 +72,7 @@ class ArrayMapGetter extends ArrayInput
 	{
 		$arrayMapGetter = new static($haystack, $defaultValue);
 	
-		$result = self::getAssocValuesByMultiMappingRecursion($arrayMapGetter, $arrayMapGetter->array, $mapArray, $searchedKeysArray);
+		$result = self::getAssocValuesByMultiMappingRecursion($arrayMapGetter, $arrayMapGetter->inputArray, $mapArray, $searchedKeysArray);
 		
 		if (! $assoc && ! empty($result) && is_array($result)) {
 			return array_values($result);
@@ -134,7 +92,7 @@ class ArrayMapGetter extends ArrayInput
 	 * @param unknown $defaultValue
 	 * @return unknown
 	 */
-	protected static function getAssocValuesByMultiMappingRecursion(ArrayMapGetter $arrayMapGetter, $haystack, $mapArray, $searchedKeysArray)
+	protected static function getAssocValuesByMultiMappingRecursion(ArrayOperatorInterface $arrayMapGetter, $haystack, $mapArray, $searchedKeysArray)
 	{
 		$bottom = true;
 		foreach ($mapArray AS $mapKey => $mapValue) {
@@ -209,17 +167,17 @@ class ArrayMapGetter extends ArrayInput
 		return $result;
 	}
 	
-	protected static function getAssocPairsByMappingKeysRecursion(ArrayMapHelper $arrayMapHelper, $haystack, $mapArray)
+	protected static function getAssocPairsByMappingKeysRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
 	{
 		
 	}
 	
-	protected static function getAssocPairsByMappingValuesRecursion(ArrayMapHelper $arrayMapHelper, $haystack, $mapArray)
+	protected static function getAssocPairsByMappingValuesRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
 	{
 	
 	}
 	
-	protected static function getAssocPairsByMappingPairsRecursion(ArrayMapHelper $arrayMapHelper, $haystack, $mapArray)
+	protected static function getAssocPairsByMappingPairsRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
 	{
 	
 	}
