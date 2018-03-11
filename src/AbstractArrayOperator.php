@@ -1,7 +1,7 @@
 <?php
 namespace Lib\ArrayGetAndMap;
 
-abstract class AbstractArrayOperator
+abstract class AbstractArrayOperator implements ArrayOperatorInterface
 {
 	use InputArrayTrait, OutputTrait;
 

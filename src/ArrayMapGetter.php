@@ -3,7 +3,7 @@ namespace Lib\ArrayGetAndMap;
 
 use Lib\ArrayMap\Exception\ArrayMapException;
 
-class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInterface
+class ArrayMapGetter extends AbstractArrayOperator
 {
 	/**
 	 * Returns a key's value by mapping it to a key-value pair from the same level in multidimensional array.
@@ -35,7 +35,7 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * 
 	 * @author nikola.tsenov
 	 * 
-	 * @param ArrayMapHelper $arrayMapHelper
+	 * @param ArrayOperatorInterface $arrayMapGetter
 	 * @param array $haystack
 	 * @param int|string $mapKey
 	 * @param unknown $mapValue
@@ -80,7 +80,7 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param array $searchedKeysArray
 	 * @param bool $assoc - result will be assoc array with $searchedKeysArray as keys
 	 * @param unknown $defaultValue
-	 * @return unknown $result
+	 * @return array|default value
 	 */
 	public static function getAssocValuesByMultiMapping(
 		$haystack,
@@ -112,7 +112,7 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param array $mapArray
 	 * @param array $searchedKeysArray
 	 * @param unknown $defaultValue
-	 * @return unknown
+	 * @return array|default value
 	 */
 	protected static function getAssocValuesByMultiMappingRecursion(
 		ArrayOperatorInterface $arrayMapGetter,
@@ -156,12 +156,16 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	}
 	
 	/**
+	 * Gets array by mapping it to pairs, values or keys from the same level in multidimensional array.
+	 * 
+	 * @author nikola.tsenov
 	 * 
 	 * @param array $haystack
 	 * @param array $mapArray
 	 * @param string $mapType ('keys' if $mapArray consists of keys, 'values' if $mapArray consists of values, 'pairs' if $mapArray is assoc)
 	 * @param string $excludeMappers (if true $mapArray excluded from result)
 	 * @param string $defaultValue
+	 * @return array|default value
 	 */
 	public static function getAssocPairsByMapping(
 		$haystack,
@@ -170,18 +174,18 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 		$excludeMappers = true,
 		$defaultValue = false
 	) {
-		$arrayMapHelper = new static($haystack, $defaultValue);
+		$arrayMapGetter = new static($haystack, $defaultValue);
 		
-		$result = $arrayMapHelper->default;
+		$result = $arrayMapGetter->default;
 		switch ($mapType) {
 			case 'keys' :
-				$result = self::getAssocPairsByMappingKeysRecursion($arrayMapHelper, $haystack, $mapArray);
+				$result = self::getAssocPairsByMappingKeysRecursion($arrayMapGetter, $haystack, $mapArray);
 				break;
 			case 'values' :
-				$result = self::getAssocPairsByMappingValuesRecursion($arrayMapHelper, $haystack, $mapArray);
+				$result = self::getAssocPairsByMappingValuesRecursion($arrayMapGetter, $haystack, $mapArray);
 				break;
 			case 'pairs' :
-				$result = self::getAssocPairsByMappingPairsRecursion($arrayMapHelper, $haystack, $mapArray);
+				$result = self::getAssocPairsByMappingPairsRecursion($arrayMapGetter, $haystack, $mapArray);
 				break;
 			default :
 				throw new ArrayMapException('"' . $mapType . '" is not a valid map type. Use "keys", "values" or "pairs".');
@@ -190,41 +194,155 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 		
 		if (
 			$excludeMappers
-			&& $result != $arrayMapHelper->default
+			&& $result != $arrayMapGetter->default
 		) {
-			if ($mapType != 'keys') {
-				$result = array_diff($result, $mapArray);
-			} else {
-				foreach ($mapArray AS $key => $value) {
-					unset($result[$key]);
-				}
+			switch ($mapType) {
+				case 'keys' :
+					foreach ($mapArray AS $keyValue) {
+						unset($result[$keyValue]);
+					}
+					break;
+				case 'values' :
+					foreach ($result AS $key => $value) {
+						if (in_array($value, $mapArray)) {
+							unset($result[$key]);
+						}
+					}
+					break;
+				case 'pairs' :
+					foreach ($mapArray AS $key => $value) {
+						unset($result[$key]);
+					}
+					break;
 			}
 		}
 		
 		return $result;
 	}
 	
+	/**
+	 * Gets array by mapping it to keys from the same level in multidimensional array.
+	 *
+	 * @author nikola.tsenov
+	 *
+	 * @param ArrayOperatorInterface $arrayMapGetter
+	 * @param array $haystack
+	 * @param array $keysArray
+	 * @return array|default value
+	 */
 	protected static function getAssocPairsByMappingKeysRecursion(
-		ArrayOperatorInterface $arrayMapHelper,
+		ArrayOperatorInterface $arrayMapGetter,
 		$haystack,
-		$mapArray
+		$keysArray
 	) {
+		$bottom = true;
+		foreach ($keysArray AS $keyValue) {
+			if (! isset($haystack[$keyValue])) {
+				$bottom = false;
+				break;
+			}
+		}
 		
+		if ($bottom) {
+			$arrayMapGetter->setResult($haystack);
+		}
+		
+		foreach ($haystack AS $key => $value) {
+			if (! is_null($arrayMapGetter->getResult())) {
+				break;
+			}
+			if (is_array($value)) {
+				self::getAssocPairsByMappingKeysRecursion($arrayMapGetter, $value, $keysArray);
+			}
+		}
+		
+		return $arrayMapGetter->getResult() ?? $arrayMapGetter->default;
 	}
 	
+	/**
+	 * Gets array by mapping it to values from the same level in multidimensional array.
+	 *
+	 * @author nikola.tsenov
+	 *
+	 * @param ArrayOperatorInterface $arrayMapGetter
+	 * @param array $haystack
+	 * @param array $valuesArray
+	 * @return array|default value
+	 */
 	protected static function getAssocPairsByMappingValuesRecursion(
-		ArrayOperatorInterface $arrayMapHelper,
+		ArrayOperatorInterface $arrayMapGetter,
 		$haystack,
-		$mapArray
+		$valuesArray
 	) {
-	
+		$bottom = false;
+		$temp = $valuesArray;
+		foreach ($temp AS $tempKey => $tempValue) {
+			if (in_array($tempValue, $haystack)) {
+				unset($temp[$tempKey]);
+			}
+		}
+		if (empty($temp)) {
+			$bottom = true;
+		}
+		
+		if ($bottom) {
+			$arrayMapGetter->setResult($haystack);
+		}
+		
+		foreach ($haystack AS $key => $value) {
+			if (! is_null($arrayMapGetter->getResult())) {
+				break;
+			}
+			if (is_array($value)) {
+				self::getAssocPairsByMappingValuesRecursion($arrayMapGetter, $value, $valuesArray);
+			}
+		}
+		
+		return $arrayMapGetter->getResult() ?? $arrayMapGetter->default;
 	}
 	
+	/**
+	 * Gets array by mapping it to pairs from the same level in multidimensional array.
+	 *
+	 * @author nikola.tsenov
+	 *
+	 * @param ArrayOperatorInterface $arrayMapGetter
+	 * @param array $haystack
+	 * @param array $pairsArray
+	 * @return array|default value
+	 */
 	protected static function getAssocPairsByMappingPairsRecursion(
-		ArrayOperatorInterface $arrayMapHelper,
+		ArrayOperatorInterface $arrayMapGetter,
 		$haystack,
-		$mapArray
+		$pairsArray
 	) {
-	
+		$bottom = false;
+		$temp = $pairsArray;
+		foreach ($temp AS $tempKey => $tempValue) {
+			if (
+				isset($haystack[$tempKey])
+				&& in_array($tempValue, $haystack)
+			) {
+				unset($temp[$tempKey]);
+			}
+		}
+		if (empty($temp)) {
+			$bottom = true;
+		}
+		
+		if ($bottom) {
+			$arrayMapGetter->setResult($haystack);
+		}
+		
+		foreach ($haystack AS $key => $value) {
+			if (! is_null($arrayMapGetter->getResult())) {
+				break;
+			}
+			if (is_array($value)) {
+				self::getAssocPairsByMappingPairsRecursion($arrayMapGetter, $value, $pairsArray);
+			}
+		}
+		
+		return $arrayMapGetter->getResult() ?? $arrayMapGetter->default;
 	}
 }
