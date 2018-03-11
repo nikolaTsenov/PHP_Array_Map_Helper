@@ -12,8 +12,10 @@ abstract class AbstractArrayOperator
 	 * @param unknown $defaultValue
 	 * @throws ArrayMapException
 	 */
-	public function __construct($array, $defaultValue = false)
-	{
+	public function __construct(
+		$array,
+		$defaultValue = false
+	) {
 		$this->setInputArray($array);
 		$this->setDefaultValue($defaultValue);
 	}

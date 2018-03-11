@@ -18,8 +18,13 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param unknown $defaultValue
 	 * @return unknown
 	 */
-	public static function getAssocValueByMapping($haystack, $mapKey, $mapValue, $searchedKey, $defaultValue = false)
-	{
+	public static function getAssocValueByMapping(
+		$haystack,
+		$mapKey,
+		$mapValue,
+		$searchedKey,
+		$defaultValue = false
+	) {
 		$arrayMapGetter = new static($haystack, $defaultValue);
 		
 		return self::getAssocValueByMappingRecursion($arrayMapGetter, $arrayMapGetter->inputArray, $mapKey, $mapValue, $searchedKey);
@@ -37,9 +42,18 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param int|string $searchedKey
 	 * @return unknown
 	 */
-	protected static function getAssocValueByMappingRecursion(ArrayOperatorInterface $arrayMapGetter, $haystack, $mapKey, $mapValue, $searchedKey)
-	{
-		if (isset($haystack[$mapKey]) && $haystack[$mapKey] == $mapValue && array_key_exists($searchedKey, $haystack)) {
+	protected static function getAssocValueByMappingRecursion(
+		ArrayOperatorInterface $arrayMapGetter,
+		$haystack,
+		$mapKey,
+		$mapValue,
+		$searchedKey
+	) {
+		if (
+			isset($haystack[$mapKey])
+			&& $haystack[$mapKey] == $mapValue
+			&& array_key_exists($searchedKey, $haystack)
+		) {
 			$arrayMapGetter->setResult($haystack[$searchedKey]);
 		}
 	
@@ -68,13 +82,21 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param unknown $defaultValue
 	 * @return unknown $result
 	 */
-	public static function getAssocValuesByMultiMapping($haystack, array $mapArray, array $searchedKeysArray, $assoc = false, $defaultValue = false)
-	{
+	public static function getAssocValuesByMultiMapping(
+		$haystack,
+		array $mapArray,
+		array $searchedKeysArray,
+		$assoc = false,
+		$defaultValue = false
+	) {
 		$arrayMapGetter = new static($haystack, $defaultValue);
 	
 		$result = self::getAssocValuesByMultiMappingRecursion($arrayMapGetter, $arrayMapGetter->inputArray, $mapArray, $searchedKeysArray);
 		
-		if (! $assoc && ! empty($result) && is_array($result)) {
+		if (
+			! $assoc
+			&& ! empty($result) && is_array($result)
+		) {
 			return array_values($result);
 		}
 		
@@ -92,11 +114,18 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param unknown $defaultValue
 	 * @return unknown
 	 */
-	protected static function getAssocValuesByMultiMappingRecursion(ArrayOperatorInterface $arrayMapGetter, $haystack, $mapArray, $searchedKeysArray)
-	{
+	protected static function getAssocValuesByMultiMappingRecursion(
+		ArrayOperatorInterface $arrayMapGetter,
+		$haystack,
+		$mapArray,
+		$searchedKeysArray
+	) {
 		$bottom = true;
 		foreach ($mapArray AS $mapKey => $mapValue) {
-			if (! isset($haystack[$mapKey]) || $haystack[$mapKey] != $mapValue) {
+			if (
+				! isset($haystack[$mapKey])
+				|| $haystack[$mapKey] != $mapValue
+			) {
 				$bottom = false;
 				break;
 			}
@@ -134,8 +163,13 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 	 * @param string $excludeMappers (if true $mapArray excluded from result)
 	 * @param string $defaultValue
 	 */
-	public static function getAssocPairsByMapping($haystack, array $mapArray, $mapType, $excludeMappers = true, $defaultValue = false)
-	{
+	public static function getAssocPairsByMapping(
+		$haystack,
+		array $mapArray,
+		$mapType,
+		$excludeMappers = true,
+		$defaultValue = false
+	) {
 		$arrayMapHelper = new static($haystack, $defaultValue);
 		
 		$result = $arrayMapHelper->default;
@@ -154,7 +188,10 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 				break;
 		}
 		
-		if ($excludeMappers && $result != $arrayMapHelper->default) {
+		if (
+			$excludeMappers
+			&& $result != $arrayMapHelper->default
+		) {
 			if ($mapType != 'keys') {
 				$result = array_diff($result, $mapArray);
 			} else {
@@ -167,18 +204,27 @@ class ArrayMapGetter extends AbstractArrayOperator implements ArrayOperatorInter
 		return $result;
 	}
 	
-	protected static function getAssocPairsByMappingKeysRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
-	{
+	protected static function getAssocPairsByMappingKeysRecursion(
+		ArrayOperatorInterface $arrayMapHelper,
+		$haystack,
+		$mapArray
+	) {
 		
 	}
 	
-	protected static function getAssocPairsByMappingValuesRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
-	{
+	protected static function getAssocPairsByMappingValuesRecursion(
+		ArrayOperatorInterface $arrayMapHelper,
+		$haystack,
+		$mapArray
+	) {
 	
 	}
 	
-	protected static function getAssocPairsByMappingPairsRecursion(ArrayOperatorInterface $arrayMapHelper, $haystack, $mapArray)
-	{
+	protected static function getAssocPairsByMappingPairsRecursion(
+		ArrayOperatorInterface $arrayMapHelper,
+		$haystack,
+		$mapArray
+	) {
 	
 	}
 }
