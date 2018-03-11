@@ -1,5 +1,5 @@
 <?php
-namespace Lib\ArrayMap\Exception;
+namespace Lib\ArrayGetAndMap\Exception;
 
 class ArrayMapException extends \Exception
 {
